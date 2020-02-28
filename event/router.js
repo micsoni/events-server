@@ -4,9 +4,13 @@ const Event = require("./model");
 const router = new Router();
 
 router.get("/events", (req, res, next) => {
-  Event.findAll()
-    .then(event => {
-      res.send(event);
+  const limit = Math.min(req.query.limit || 10, 50)
+  const offset = req.query.offset || 0
+  Event.findAndCountAll({
+    limit, offset
+  })
+    .then(result => {
+      res.send({ events: result.rows, total: result.count });
     })
     .catch(next);
 });
